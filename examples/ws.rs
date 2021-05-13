@@ -12,11 +12,14 @@ use jsonrpc_derive::rpc;
 pub trait RpcPubSub {
     type Metadata;
 
-    #[pubsub(subscription = "meal", subscribe, name = "sub_meal")]
+    #[pubsub(subscription = "fav", subscribe, name = "subFav")]
     fn subscribe(&self, meta: Self::Metadata, subscriber: typed::Subscriber<String>, param: usize);
 
-    #[pubsub(subscription = "meal", unsubscribe, name = "unsub_meal")]
+    #[pubsub(subscription = "fav", unsubscribe, name = "unsubFav")]
     fn unsubscribe(&self, meta: Option<Self::Metadata>, sub_id: SubscriptionId) -> Result<bool>;
+
+    #[rpc(name = "notifySub")]
+    fn notify_sub(&self);
 }
 
 #[derive(Debug, Default)]
@@ -28,7 +31,7 @@ struct MyRpcPubSub {
 impl RpcPubSub for MyRpcPubSub {
     type Metadata = Arc<Session>;
 
-    fn subscribe(&self, meta: Self::Metadata, subscriber: typed::Subscriber<String>, param: usize) {
+    fn subscribe(&self, _meta: Self::Metadata, subscriber: typed::Subscriber<String>, param: usize) {
         if param != 27 {
             subscriber.reject(Error {
                 code: ErrorCode::InvalidParams,
@@ -46,7 +49,7 @@ impl RpcPubSub for MyRpcPubSub {
         }
     }
 
-    fn unsubscribe(&self, meta: Option<Self::Metadata>, sub_id: SubscriptionId) -> Result<bool> {
+    fn unsubscribe(&self, _meta: Option<Self::Metadata>, sub_id: SubscriptionId) -> Result<bool> {
         let mut res = false;
         if let Ok(mut map) = self.map.write() {
             if map.remove(&sub_id).is_some() {
@@ -63,6 +66,10 @@ impl RpcPubSub for MyRpcPubSub {
                 data: None
             })
         }
+    }
+
+    fn notify_sub(&self) {
+        println!("There is a subscription now!");
     }
 }
 

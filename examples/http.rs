@@ -7,8 +7,8 @@ pub trait Rpc {
     #[rpc(name = "hello", params = "raw")]
     fn hello(&self, params: Params) -> Result<String>;
 
-	#[rpc(name = "notifyMe")]
-    fn notify(&self) -> Result<()>;
+	#[rpc(name = "notify")]
+    fn notify(&self, a: usize, b: usize);
 }
 
 struct MyRpc;
@@ -17,9 +17,8 @@ impl Rpc for MyRpc {
         Ok(format!("Hello: {:?}", params))
     }
 
-	fn notify(&self) -> Result<()> {
-		println!("Notify Me");
-		Ok(())
+	fn notify(&self, a: usize, b: usize) {
+		println!("Notify with {} & Then {}", a, b);
 	}
 }
 
